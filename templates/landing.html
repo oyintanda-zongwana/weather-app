@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #8fa9e2, #ffffff);
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            background: linear-gradient(to bottom, #7e92cc, #d8e4ff);
+            width: 375px;
+            height: 667px;
+            border-radius: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 12px;
+            width: 90%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .city-card {
+            width: 90%;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+            color: #fff;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .city-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .city-info {
+            text-align: left;
+        }
+
+        .city-card h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .city-card p {
+            font-size: 14px;
+            color: #f1f1f1;
+            margin: 2px 0;
+        }
+
+        .temperature {
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .error-message {
+            color: #ff4444;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .weather-icon {
+            font-size: 32px;
+            margin: 10px 0;
+        }
+
+        .nearest-cities {
+            width: 90%;
+            margin-top: 20px;
+        }
+
+        .button {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .home-button {
+            background: rgba(82, 109, 230, 0.5);
+        }
+
+        .nearest-cities h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-align: left;
+        }
+
+        .credit {
+            color: #fff;
+            font-size: 14px;
+            margin-top: auto;
+            padding: 10px;
+        }
+
+        .distance-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="nav-container">
+            <a href="/" class="button home-button">← Back to Home</a>
+        </div><br>
+        <input type="text" class="search-bar" placeholder="Enter city name" id="cityInput" />
+        <div id="errorMessage" class="error-message"></div>
+        <div id="weatherResults"></div>
+        <div id="nearestCities" class="nearest-cities"></div>
+        <p class="credit">@wolf</p>
+    </div>
+
+    <script>
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const city = this.value.trim();
+                if (city) {
+                    getWeather(city);
+                }
+            }
+        });
+
+        function getWeather(city) {
+            fetch('/get_weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ city: city })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const errorMessage = document.getElementById('errorMessage');
+                const weatherResults = document.getElementById('weatherResults');
+                const nearestCities = document.getElementById('nearestCities');
+
+                if (data.error) {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = 'block';
+                    weatherResults.innerHTML = '';
+                    nearestCities.innerHTML = '';
+                    return;
+                }
+
+                errorMessage.style.display = 'none';
+                weatherResults.innerHTML = '';
+                nearestCities.innerHTML = '';
+
+                // Create main city card
+                const mainForecast = data.forecasts[0];
+                const cityCard = document.createElement('div');
+                cityCard.className = 'city-card';
+                cityCard.innerHTML = `
+                    <div class="city-info">
+                        <h2>${data.city}, ${data.country}</h2>
+                        <p>${mainForecast.description}</p>
+                        <p>${mainForecast.temp_min}° / ${mainForecast.temp_max}°</p>
+                        <p>Humidity: ${mainForecast.humidity}%</p>
+                        <p>Wind: ${mainForecast.wind_speed} m/s ${mainForecast.wind_direction}</p>
+                    </div>
+                    <div>
+                        <div class="weather-icon">${mainForecast.symbol}</div>
+                        <span class="temperature">${mainForecast.temperature}°</span>
+                    </div>
+                `;
+                weatherResults.appendChild(cityCard);
+
+                // Display nearest cities
+                if (data.nearest_cities && data.nearest_cities.length > 0) {
+                    nearestCities.innerHTML = '<h3>Nearby Cities</h3>';
+                    data.nearest_cities.forEach(city => {
+                        const nearbyCard = document.createElement('div');
+                        nearbyCard.className = 'city-card';
+                        nearbyCard.onclick = () => getWeather(city.name);
+                        nearbyCard.innerHTML = `
+                            <div class="city-info">
+                                <h2>${city.name}, ${city.country}</h2>
+                                <p>${city.description}</p>
+                                <p>${city.temp_min}° / ${city.temp_max}°</p>
+                                <span class="distance-badge">${city.distance} km away</span>
+                            </div>
+                            <div>
+                                <div class="weather-icon">${city.symbol}</div>
+                                <span class="temperature">${city.temp}°</span>
+                            </div>
+                        `;
+                        nearestCities.appendChild(nearbyCard);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('errorMessage').textContent = 'Failed to fetch weather data';
+                document.getElementById('errorMessage').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>

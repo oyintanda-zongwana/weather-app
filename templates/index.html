@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #8fa9e2, #ffffff);
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            background: #fff;
+            width: 375px;
+            height: 667px;
+            border-radius: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .icon {
+            margin-bottom: 20px;
+        }
+
+        .icon svg {
+            width: 100px;
+            height: 100px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #777;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            background-color: #65b7f4;
+            color: #fff;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #559ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <!-- SVG for Sun and Cloud -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+                <circle cx="42" cy="22" r="12" fill="#FFD93B" />
+                <circle cx="30" cy="34" r="14" fill="#B3E5FC" />
+                <circle cx="40" cy="34" r="14" fill="#B3E5FC" />
+            </svg>
+        </div>
+        <h1>weather</h1>
+        <p>@Always Hot</p>
+        <a href="/landing" class="button">Get Todays weather </a><br>
+        <a href="/results" class="button">Get weekly Forecast</a>
+    </div>
+</body>
+</html>

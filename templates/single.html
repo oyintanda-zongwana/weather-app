@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Weather Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .nav-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .home-button {
+            background: rgba(82, 109, 230, 0.5);
+        }
+
+        .search-button {
+            background: rgba(46, 213, 115, 0.5);
+        }
+        
+        .search-container {
+            margin: 20px 0 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-bar {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 24px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .weather-container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            display: none;
+        }
+        
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .temperature-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .temperature {
+            font-size: 64px;
+            font-weight: 700;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .weather-icon {
+            font-size: 48px;
+        }
+        
+        .weather-info {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-content: center;
+        }
+        
+        .details p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+        
+        .forecast-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .day {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .day:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .day-name {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .day-temp {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .day-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .forecast-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .top-section {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .forecast-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .weather-container {
+                padding: 24px;
+            }
+            
+            .forecast-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-container">
+        <a href="/" class="button home-button">← Back to Home</a>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Enter city name..." id="cityInput">
+        <button class="button search-button" onclick="searchWeather()">Search</button>
+    </div>
+
+    <div class="loading" id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <p>Fetching weather data...</p>
+    </div>
+
+    <div class="weather-container" id="weatherDisplay">
+        <div class="top-section">
+            <div class="temperature-container">
+                <p class="weather-info" id="dateTime"></p>
+                <h2 class="temperature">
+                    <span id="currentTemp"></span>
+                    <span class="weather-icon" id="currentIcon"></span>
+                </h2>
+                <p class="weather-info" id="feelsLike"></p>
+                <p class="weather-info" id="sunTimes"></p>
+            </div>
+            <div class="details">
+                <p id="windSpeed"></p>
+                <p id="humidity"></p>
+                <p id="pressure"></p>
+                <p id="precipitation"></p>
+            </div>
+        </div>
+        <div class="forecast-container" id="weeklyForecast">
+            <!-- Will be populated dynamically -->
+        </div>
+    </div>
+
+    <script>
+        function goHome() {
+            document.getElementById('weatherDisplay').style.display = 'none';
+            document.getElementById('cityInput').value = '';
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        function searchWeather() {
+            const city = document.getElementById('cityInput').value.trim();
+            if (city) {
+                getWeather(city);
+            }
+        }
+
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchWeather();
+            }
+        });
+
+        function getWeatherIcon(description) {
+            const icons = {
+                'clear': '☀️',
+                'sunny': '☀️',
+                'partly cloudy': '⛅',
+                'cloudy': '☁️',
+                'overcast': '☁️',
+                'rain': '🌧️',
+                'light rain': '🌦️',
+                'heavy rain': '⛈️',
+                'thunderstorm': '⛈️',
+                'snow': '🌨️',
+                'sleet': '🌨️',
+                'fog': '🌫️',
+                'mist': '🌫️',
+                'wind': '💨'
+            };
+
+            description = description.toLowerCase();
+            for (let key in icons) {
+                if (description.includes(key)) {
+                    return icons[key];
+                }
+            }
+            return '🌡️'; // default icon
+        }
+
+        function getWeather(city) {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('weatherDisplay').style.display = 'none';
+
+            fetch('/get_weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ city: city })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                displayWeather(data);
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('weatherDisplay').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch weather data');
+                document.getElementById('loadingIndicator').style.display = 'none';
+            });
+        }
+
+        function displayWeather(data) {
+            const currentDate = new Date();
+            const forecast = data.forecasts[0];
+
+            // Update current conditions
+            document.getElementById('dateTime').textContent = currentDate.toLocaleString('en-US', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTemp').textContent = `${forecast.temperature}°C`;
+            document.getElementById('currentIcon').textContent = getWeatherIcon(forecast.description);
+            document.getElementById('feelsLike').textContent = `Feels like ${forecast.feels_like}°C`;
+            document.getElementById('sunTimes').textContent = `Sunrise: ${data.sunrise} | Sunset: ${data.sunset}`;
+
+            // Update details
+            document.getElementById('windSpeed').textContent = `💨 Wind: ${forecast.wind_speed} m/s ${forecast.wind_direction}`;
+            document.getElementById('humidity').textContent = `💧 Humidity: ${forecast.humidity}%`;
+            document.getElementById('pressure').textContent = `🌡️ Pressure: ${forecast.pressure} hPa`;
+            document.getElementById('precipitation').textContent = `🌧️ Precipitation: ${forecast.precipitation_chance}%`;
+
+            // Update 7-day forecast
+            const weeklyForecast = document.getElementById('weeklyForecast');
+            weeklyForecast.innerHTML = '';
+            
+            data.forecasts.slice(0, 6).forEach(day => {
+                const date = new Date(day.date);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day';
+                dayDiv.innerHTML = `
+                    <div class="day-name">${dayName}</div>
+                    <div class="day-temp">
+                        ${day.temperature}°
+                        <span class="weather-icon">${getWeatherIcon(day.description)}</span>
+                    </div>
+                    <div class="day-desc">${day.description}</div>
+                `;
+                weeklyForecast.appendChild(dayDiv);
+            });
+        }
+    </script>
+</body>
+</html>

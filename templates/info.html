@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #1a1a2e, #16213e);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .search-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 16px;
+            width: 300px;
+            outline: none;
+        }
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .weather-container {
+            width: 1100px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: left;
+            box-shadow: 0 6px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Enter city name..." id="cityInput">
+    </div>
+
+    <div class="weather-container" id="weatherDisplay">
+        <!-- Your existing weather container HTML structure -->
+        <div class="top-section">
+            <div class="temperature-container">
+                <p class="weather-info" id="dateTime"></p>
+                <h2 class="temperature" id="currentTemp"></h2>
+                <p class="weather-info" id="feelsLike"></p>
+                <p class="weather-info details" id="sunTimes"></p>
+            </div>
+            <div class="details">
+                <p id="windSpeed"></p>
+                <p id="humidity"></p>
+                <p id="pressure"></p>
+                <p id="precipitation"></p>
+            </div>
+        </div>
+        <div class="hourly-forecast" id="hourlyForecast">
+            <!-- Will be populated dynamically -->
+        </div>
+        <div class="forecast-container" id="weeklyForecast">
+            <!-- Will be populated dynamically -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const city = this.value.trim();
+                if (city) {
+                    getWeather(city);
+                }
+            }
+        });
+
+        function getWeather(city) {
+            fetch('/get_weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ city: city })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                displayWeather(data);
+                document.getElementById('weatherDisplay').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch weather data');
+            });
+        }
+
+        function displayWeather(data) {
+            const currentDate = new Date();
+            const forecast = data.forecasts[0];
+
+            // Update current conditions
+            document.getElementById('dateTime').textContent = currentDate.toLocaleString('en-US', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTemp').textContent = `${forecast.temperature}°C`;
+            document.getElementById('feelsLike').textContent = `Feels like ${forecast.feels_like}°C`;
+            document.getElementById('sunTimes').textContent = `Sunrise: ${data.sunrise} | Sunset: ${data.sunset}`;
+
+            // Update details
+            document.getElementById('windSpeed').textContent = `Wind speed: ${forecast.wind_speed} m/s ${forecast.wind_direction}`;
+            document.getElementById('humidity').textContent = `Humidity: ${forecast.humidity}%`;
+            document.getElementById('pressure').textContent = `Pressure: ${forecast.pressure} hPa`;
+            document.getElementById('precipitation').textContent = `Precipitation probability: ${forecast.precipitation_chance}%`;
+
+            // Update weekly forecast
+            const weeklyForecast = document.getElementById('weeklyForecast');
+            weeklyForecast.innerHTML = '';
+            
+            data.forecasts.forEach(day => {
+                const date = new Date(day.date);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day';
+                dayDiv.innerHTML = `
+                    ${dayName} <span>${day.temperature}°</span><br>${day.description}
+                `;
+                weeklyForecast.appendChild(dayDiv);
+            });
+        }
+    </script>
+</body>
+</html>
