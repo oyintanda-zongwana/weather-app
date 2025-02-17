@@ -182,4 +182,5 @@ def get_weather():
     return jsonify(weather_data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # This allows running locally
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
